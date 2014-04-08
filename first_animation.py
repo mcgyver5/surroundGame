@@ -37,6 +37,64 @@ GREEN = (0,255,0)
 BLUE = (0,0,255)
 ORANGE = (255,128,20)
 PINK = (255,10,255)
+#Startup screen:
+startup = True
+settings = False
+basicFont = pygame.font.SysFont(None, 40)
+text = basicFont.render('Start: a', True, WHITE, BLUE)
+text2 = basicFont.render('Settings: c', True, WHITE, BLUE)
+def display_settings():
+
+    # settings has speed, blocksize, fade
+    settingsList = []
+
+    settingsList.append("Start Speed: s")
+    settingsList.append("Block Size: b")
+    settingsList.append("Fade: f")
+    settingsFont = pygame.font.SysFont(None,30)
+    y_offset = 60
+    for str in settingsList:
+        tt = settingsFont.render(str,True, WHITE, BLUE)
+        ttRect = tt.get_rect()
+        ttRect.centerx = winSurf.get_rect().centerx
+        ttRect.centery = winSurf.get_rect().centery + y_offset
+        y_offset = y_offset + 60
+
+        winSurf.blit(tt,ttRect)
+
+textRect = text.get_rect()
+textRect.centerx = winSurf.get_rect().centerx
+textRect.centery = winSurf.get_rect().centery - 200
+
+text2Rect = text2.get_rect()
+text2Rect.centerx = winSurf.get_rect().centerx
+text2Rect.centery = winSurf.get_rect().centery - 100
+
+
+
+winSurf.blit(text,textRect)
+winSurf.blit(text2,text2Rect)
+pygame.display.update()
+while startup:
+    for event in pygame.event.get():
+
+        if event.type == pygame.locals.QUIT:
+            pygame.quite()
+            sys.exit()
+
+        if event.type == pygame.locals.KEYDOWN:
+            if event.key == ord('a'):
+                startup = False
+            if event.key == ord('c'):
+                display_settings()
+                pygame.display.update()
+            if event.key == pygame.locals.K_ESCAPE:
+                pygame.quit()
+                sys.exit()
+
+
+
+
 p1color = PINK
 p2color = ORANGE
 def crash(x,y):
@@ -79,13 +137,6 @@ def moveBlock(b):
     if b['rect'].bottom < 0:
         #past the top
         b['rect'].top = WINHEIGHT
-        # if b['dir'] == UPLEFT:
-        #     b['dir'] = DOWNLEFT
-        # if b['dir'] == UPRIGHT:
-        #     b['rect'].top = WINHEIGHT
-        #     #b['dir'] = DOWNRIGHT
-        # if b['dir'] == UP:
-        #     b['rect'].top = WINHEIGHT
 
     if b['rect'].bottom > WINHEIGHT:
         #past the bottom
@@ -96,18 +147,8 @@ def moveBlock(b):
 
     if b['rect'].left < 0:
         b['rect'].left = WINWIDTH -BLOCKSIZE
-        #past the left
-        # if b['dir'] == UPLEFT:
-        #     b['dir'] = UPRIGHT
-        # if b['dir'] == DOWNLEFT:
-        #     b['dir'] = DOWNRIGHT
 
     if b['rect'].right > WINWIDTH:
-        #past the right
-        # if b['dir'] == UPRIGHT:
-        #     b['dir'] = UPLEFT
-        # if b['dir'] == DOWNRIGHT:
-        #     b['dir'] = DOWNLEFT
         b['rect'].left =0
 
 def restart(player1points, player2points):
@@ -143,8 +184,7 @@ def makeStaticBlock(static_blocks,player):
     if player['dir'] == UPRIGHT:
         h = -BLOCKSIZE
         v = BLOCKSIZE
-    print (str(h) + " is h and " + str(v) + " is v")
-    print ("player dir: " + str(player['dir']))
+
     newBlock = {'rect':pygame.Rect(player['rect'].left + h,player['rect'].top + v,BLOCKSIZE,BLOCKSIZE),'color':playerColor, 'dir':NONE}
     static_blocks.append(newBlock)
     return static_blocks
@@ -158,6 +198,7 @@ p2addblock = False
 #gameloop
 while True:
     for event in pygame.event.get():
+
         if event.type == pygame.locals.QUIT:
             print ("player1: " + str(player1['points']))
             print ("player2: " + str(player2['points']))
@@ -166,6 +207,9 @@ while True:
 
 
         if event.type == pygame.locals.KEYDOWN:
+            if event.key == pygame.locals.K_ESCAPE:
+                pygame.quit()
+                sys.exit()
             if event.key == pygame.locals.K_LEFT:
                 player2['dir'] = UPLEFT
             if event.key == pygame.locals.K_RIGHT:
@@ -184,11 +228,10 @@ while True:
             if event.key == ord('s'):
                 p1addblock = True
         if event.type == pygame.locals.KEYUP:
-            print("hey keyup")
+
             if event.key == pygame.locals.K_DOWN:
                 p2addblock = False
             if event.key == ord('s'):
-                print("hey S")
                 p1addblock = False
 
     winSurf.fill(BLACK)
