@@ -40,44 +40,31 @@ PINK = (255,10,255)
 #Startup screen:
 startup = True
 settings = False
-basicFont = pygame.font.SysFont(None, 40)
-text = basicFont.render('Start: a', True, WHITE, BLUE)
-text2 = basicFont.render('Settings: c', True, WHITE, BLUE)
-def display_settings():
 
-    # settings has speed, blocksize, fade
-    settingsList = []
 
-    settingsList.append("Start Speed: s")
-    settingsList.append("Block Size: b")
-    settingsList.append("Fade: f")
-    settingsFont = pygame.font.SysFont(None,30)
-    y_offset = 60
-    for str in settingsList:
-        tt = settingsFont.render(str,True, WHITE, BLUE)
+def menu_render(textList,startPos,sepDist,fontSize=40):
+    basicFont = pygame.font.SysFont(None, fontSize)
+    for str in textList:
+        tt = basicFont.render(str,True, WHITE,BLUE)
         ttRect = tt.get_rect()
         ttRect.centerx = winSurf.get_rect().centerx
-        ttRect.centery = winSurf.get_rect().centery + y_offset
-        y_offset = y_offset + 60
-
+        ttRect.centery = winSurf.get_rect().centery + startPos
+        startPos = startPos + sepDist
         winSurf.blit(tt,ttRect)
 
-textRect = text.get_rect()
-textRect.centerx = winSurf.get_rect().centerx
-textRect.centery = winSurf.get_rect().centery - 200
+menuList = ["Start: a", "Settings: c"]
 
-text2Rect = text2.get_rect()
-text2Rect.centerx = winSurf.get_rect().centerx
-text2Rect.centery = winSurf.get_rect().centery - 100
+menu_render(menuList,-200,100)
+
+def display_settings():
+    # settings has speed, blocksize, fade
+    settingsList = ["Start Speed: s","Block Size: b","Fade: f" ]
+    menu_render(settingsList,60,60,30)
 
 
-
-winSurf.blit(text,textRect)
-winSurf.blit(text2,text2Rect)
 pygame.display.update()
 while startup:
     for event in pygame.event.get():
-
         if event.type == pygame.locals.QUIT:
             pygame.quite()
             sys.exit()
@@ -91,9 +78,6 @@ while startup:
             if event.key == pygame.locals.K_ESCAPE:
                 pygame.quit()
                 sys.exit()
-
-
-
 
 p1color = PINK
 p2color = ORANGE
