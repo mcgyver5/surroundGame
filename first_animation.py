@@ -1,91 +1,38 @@
-__author__ = 'McGuiT1'
+__author__ = 'mcgyver5'
 import sys
 import time
+import datetime
 import pygame
 import os
+import globals
+pygame.init()
+import surround_menu
 from pygame.locals import *
 import random
-
+fade = 100
 BLOCKSIZE=15
 x = 100
 y = 20
 os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (x,y)
 pygame.mixer.pre_init(44100, -16, 2, 2048) # setup mixer to avoid sound lag
-pygame.init()
+
 soundFile = "snare.wav"
 pygame.mixer.init()
 sound = pygame.mixer.Sound(soundFile)
-#window:
-WINWIDTH = 1200
-WINHEIGHT = 700
-winSurf = pygame.display.set_mode((WINWIDTH,WINHEIGHT),0,32)
+print(globals.WINWIDTH)
+print("______________________________")
+winSurf = pygame.display.set_mode((globals.WINWIDTH,globals.WINHEIGHT),0,32)
 pygame.display.set_caption('Animation!!!!!!')
 
-DOWNLEFT = 1
-DOWNRIGHT = 3
-UPLEFT = 7
-UPRIGHT = 9
-NONE=0
-UP = 2
-DOWN = 8
 MOVESPEED = 2
 
-BLACK = (0,0,0)
-WHITE = (255,255,255)
-RED = (255,0,0)
-GREEN = (0,255,0)
-BLUE = (0,0,255)
-ORANGE = (255,128,20)
-PINK = (255,10,255)
-#Startup screen:
-startup = True
-settings = False
-
-
-def menu_render(textList,startPos,sepDist,fontSize=40):
-    basicFont = pygame.font.SysFont(None, fontSize)
-    for str in textList:
-        tt = basicFont.render(str,True, WHITE,BLUE)
-        ttRect = tt.get_rect()
-        ttRect.centerx = winSurf.get_rect().centerx
-        ttRect.centery = winSurf.get_rect().centery + startPos
-        startPos = startPos + sepDist
-        winSurf.blit(tt,ttRect)
-
-menuList = ["Start: a", "Settings: c"]
-
-menu_render(menuList,-200,100)
-
-def display_settings():
-    # settings has speed, blocksize, fade
-    settingsList = ["Start Speed: s","Block Size: b","Fade: f" ]
-    menu_render(settingsList,60,60,30)
-
-
-pygame.display.update()
-while startup:
-    for event in pygame.event.get():
-        if event.type == pygame.locals.QUIT:
-            pygame.quite()
-            sys.exit()
-
-        if event.type == pygame.locals.KEYDOWN:
-            if event.key == ord('a'):
-                startup = False
-            if event.key == ord('c'):
-                display_settings()
-                pygame.display.update()
-            if event.key == pygame.locals.K_ESCAPE:
-                pygame.quit()
-                sys.exit()
-
-p1color = PINK
-p2color = ORANGE
+p1color = globals.PINK
+p2color = globals.ORANGE
 def crash(x,y):
     particles = []
     # send 10 - 20 particles at random directions
     for b in range (0,10):
-        particle = {'rect':pygame.Rect(x,y,2,2), 'color':RED, 'dir':UP }
+        particle = {'rect':pygame.Rect(x,y,2,2), 'color':globals.RED, 'dir':globals.UP }
         particles.append(particle)
     return particles
 
@@ -102,55 +49,54 @@ def collision(player,sb):
                 return True
 
 def moveBlock(b):
-
-    if b['dir'] == DOWNLEFT:
+    if b['dir'] == globals.DOWNLEFT:
         b['rect'].left -= MOVESPEED
         b['rect'].top += MOVESPEED
-    if b['dir'] == UP:
+    if b['dir'] == globals.UP:
         b['rect'].top -= MOVESPEED
-    if b['dir'] == DOWNRIGHT:
+    if b['dir'] == globals.DOWNRIGHT:
         b['rect'].left += MOVESPEED
         b['rect'].top += MOVESPEED
-    if b['dir'] == UPRIGHT:
+    if b['dir'] == globals.UPRIGHT:
         b['rect'].left += MOVESPEED
         b['rect'].top -= MOVESPEED
-    if b['dir'] == UPLEFT:
+    if b['dir'] == globals.UPLEFT:
         b['rect'].left -= MOVESPEED
         b['rect'].top -= MOVESPEED
 
     if b['rect'].bottom < 0:
         #past the top
-        b['rect'].top = WINHEIGHT
+        b['rect'].top = globals.WINHEIGHT
 
-    if b['rect'].bottom > WINHEIGHT:
+    if b['rect'].bottom > globals.WINHEIGHT:
         #past the bottom
-        if b['dir'] == DOWNLEFT:
-            b['dir'] = UPLEFT
-        if b['dir'] == DOWNRIGHT:
-            b['dir'] = UPRIGHT
+        if b['dir'] == globals.DOWNLEFT:
+            b['dir'] = globals.UPLEFT
+        if b['dir'] == globals.DOWNRIGHT:
+            b['dir'] = globals.UPRIGHT
 
     if b['rect'].left < 0:
-        b['rect'].left = WINWIDTH -BLOCKSIZE
+        b['rect'].left = globals.WINWIDTH -BLOCKSIZE
 
-    if b['rect'].right > WINWIDTH:
+    if b['rect'].right > globals.WINWIDTH:
         b['rect'].left =0
 
 def restart(player1points, player2points):
     time.sleep(0.3)
-    player1 = {'rect':pygame.Rect(300,80,BLOCKSIZE,BLOCKSIZE), 'color':GREEN, 'bcolor':PINK, 'dir':UP, 'points':player1points}
-    player2 = {'rect':pygame.Rect(WINWIDTH/2 + 100,100,BLOCKSIZE,BLOCKSIZE), 'color':BLUE, 'bcolor':ORANGE, 'dir':UP, 'points':player2points}
+    player1 = {'rect':pygame.Rect(300,80,BLOCKSIZE,BLOCKSIZE), 'color':globals.GREEN, 'bcolor':globals.PINK, 'dir':globals.UP, 'points':player1points}
+    player2 = {'rect':pygame.Rect(globals.WINWIDTH/2 + 100,100,BLOCKSIZE,BLOCKSIZE), 'color':globals.BLUE, 'bcolor':globals.ORANGE, 'dir':globals.UP, 'points':player2points}
     return player1, player2
 
-def doStaticBlocks():
+def doInitialStaticBlocks():
     static_blocks = []
     blocks_to_skip = random.randint(5,10)
-    start = random.randint(0,WINHEIGHT - blocks_to_skip * BLOCKSIZE)
+    start = random.randint(0,globals.WINHEIGHT - blocks_to_skip * BLOCKSIZE)
     end = start + blocks_to_skip * BLOCKSIZE
 
-    for x in range(0,WINHEIGHT,BLOCKSIZE):
+    for x in range(0,globals.WINHEIGHT,BLOCKSIZE):
         # skip blocks in a row at random:
         if x < start or x > end:
-            static_blocks.append({'rect':pygame.Rect(WINWIDTH/2,x,BLOCKSIZE,BLOCKSIZE),'color':WHITE, 'dir':NONE})
+            static_blocks.append({'rect':pygame.Rect(globals.WINWIDTH/2,x,BLOCKSIZE,BLOCKSIZE),'color':globals.WHITE, 'dir':globals.NONE,'lifespan':2000})
     return static_blocks
 
 def makeStaticBlock(static_blocks,player):
@@ -159,26 +105,38 @@ def makeStaticBlock(static_blocks,player):
     playerColor = player['bcolor']
     # put a static block down and advance player past it so it doesn't register as a collision
     # if player direction is up, put it BLOCKSIZE to the rear  # if upleft, put it down and right  if upright, put it down and right
-    if player['dir'] == UP:
+    if player['dir'] == globals.UP:
         h = 0
         v = BLOCKSIZE
-    if player['dir'] == UPLEFT:
+    if player['dir'] == globals.UPLEFT:
         h = BLOCKSIZE
         v = BLOCKSIZE
-    if player['dir'] == UPRIGHT:
+    if player['dir'] == globals.UPRIGHT:
         h = -BLOCKSIZE
         v = BLOCKSIZE
 
-    newBlock = {'rect':pygame.Rect(player['rect'].left + h,player['rect'].top + v,BLOCKSIZE,BLOCKSIZE),'color':playerColor, 'dir':NONE}
+    newBlock = {'rect':pygame.Rect(player['rect'].left + h,player['rect'].top + v,BLOCKSIZE,BLOCKSIZE),'color':playerColor, 'dir':globals.NONE, 'lifespan':fade,'delete':False}
     static_blocks.append(newBlock)
     return static_blocks
 
-player1 = {'rect':pygame.Rect(300,80,BLOCKSIZE,BLOCKSIZE), 'color':RED,'bcolor':PINK, 'dir':UP, 'points':0}
-player2 = {'rect':pygame.Rect(WINWIDTH/2 + 100,100,BLOCKSIZE,BLOCKSIZE), 'color':BLUE, 'bcolor':ORANGE, 'dir':UP, 'points':0}
-static_blocks = doStaticBlocks()
+# start players at a random y value:
+randy1 = random.randint(0,globals.WINHEIGHT)
+randy2 = random.randint(0,globals.WINHEIGHT)
+
+player1 = {'rect':pygame.Rect(300,randy1,BLOCKSIZE,BLOCKSIZE), 'color':globals.RED,'bcolor':globals.PINK, 'dir':globals.UP, 'points':0}
+player2 = {'rect':pygame.Rect(globals.WINWIDTH/2 + 100,randy2,BLOCKSIZE,BLOCKSIZE), 'color':globals.BLUE, 'bcolor':globals.ORANGE, 'dir':globals.DOWN, 'points':0}
+static_blocks = doInitialStaticBlocks()
 p1addblock = False
 p2addblock = False
 
+
+def checkStaticBlocks(static_blocks):
+    for block in static_blocks:
+        block['lifespan'] = block['lifespan'] -1
+        if block['lifespan'] <=0:
+            # flag for deletion
+            static_blocks.remove(block)
+startTime = datetime.datetime.now()
 #gameloop
 while True:
     for event in pygame.event.get():
@@ -195,20 +153,20 @@ while True:
                 pygame.quit()
                 sys.exit()
             if event.key == pygame.locals.K_LEFT:
-                player2['dir'] = UPLEFT
+                player2['dir'] = globals.UPLEFT
             if event.key == pygame.locals.K_RIGHT:
-                player2['dir'] = UPRIGHT
+                player2['dir'] = globals.UPRIGHT
             if event.key == pygame.locals.K_UP:
-                player2['dir'] = UP
+                player2['dir'] = globals.UP
             if event.key == pygame.locals.K_DOWN:
                 p2addblock = True
 
             if event.key == ord('a'):
-                player1['dir'] = UPLEFT
+                player1['dir'] = globals.UPLEFT
             if event.key == ord('d'):
-                player1['dir'] = UPRIGHT
+                player1['dir'] = globals.UPRIGHT
             if event.key == ord('w'):
-                player1['dir'] = UP
+                player1['dir'] = globals.UP
             if event.key == ord('s'):
                 p1addblock = True
         if event.type == pygame.locals.KEYUP:
@@ -218,21 +176,16 @@ while True:
             if event.key == ord('s'):
                 p1addblock = False
 
-    winSurf.fill(BLACK)
+    winSurf.fill(globals.BLACK)
 
+    checkStaticBlocks(static_blocks)
     if p2addblock:
         makeStaticBlock(static_blocks,player2)
-#        newBlock = {'rect':pygame.Rect(player2['rect'].left-20,player2['rect'].top-20,20,20),'color':PINK, 'dir':NONE}
-#        static_blocks.append(newBlock)
 
     if p1addblock:
- #       newBlock = {'rect':pygame.Rect(player1['rect'].left-20,player1['rect'].top -20,20,20),'color':ORANGE, 'dir':NONE}
- #       static_blocks.append(newBlock)
         makeStaticBlock(static_blocks,player1)
     moveBlock(player1)
     moveBlock(player2)
-
-
 
     hasCollision = False
     if(collision(player1, static_blocks)):
@@ -244,10 +197,18 @@ while True:
     if hasCollision:
         sound.play()
         MOVESPEED = 3
-        static_blocks = doStaticBlocks()
+        static_blocks = doInitialStaticBlocks()
         player1,player2 = restart(player1['points'], player2['points'])
-    if MOVESPEED < 10:
-        MOVESPEED = MOVESPEED + 0.1
+    # MOVESPEED 3, 6, 9, 12
+    # When to step?
+    now = datetime.datetime.now()
+    elapsed = now - startTime
+    secondsPassed = elapsed.total_seconds()
+    if secondsPassed > 2 and MOVESPEED <=12:
+        MOVESPEED = MOVESPEED + 1
+        startTime = now
+    #if MOVESPEED < 10:
+    #    MOVESPEED = MOVESPEED + 0.1
 
     pygame.draw.rect(winSurf,player1['color'],player1['rect'])
     pygame.draw.rect(winSurf,player2['color'],player2['rect'])
